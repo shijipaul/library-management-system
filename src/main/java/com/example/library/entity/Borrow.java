@@ -1,11 +1,15 @@
 package com.example.library.entity;
 
+
+
+import java.util.Date;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,18 +18,21 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Member {
+public class Borrow {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@ManyToOne
+	@JoinColumn(name ="book_id",nullable = false)
+	private Book book;
 	
-	@NotBlank(message = "Name is required")
-	private String name;
+	@ManyToOne
+	@JoinColumn(name = "member_id" , nullable = false)
+	private Member member;
 	
-	@Email(message = "Email should be valid")
-    @NotBlank(message = "Email is required")
-	private String email;
-	private String mobileNo;
-  
+	private Date borrowDate;
+	private Date returnDate;
+	private double fine;
+
 }
