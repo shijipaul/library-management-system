@@ -24,7 +24,7 @@ public class BorrowService {
 	
 	
 	
-	public Borrow borrowbook(Long memberId , Long bookId) {
+	public Borrow borrowbook(Long bookId , Long memberId) {
 		
 		Member member = memberService.getMember(memberId);
 		Book book = bookService.getBook(bookId);
