@@ -1,9 +1,15 @@
 package com.example.library.entity;
 
+
+
+import java.util.Date;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,12 +18,21 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Member {
+public class Borrow {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String name;
-	private String email;
-	private String mobileNo;
-  
+	
+	@ManyToOne
+	@JoinColumn(name ="book_id",nullable = false)
+	private Book book;
+	
+	@ManyToOne
+	@JoinColumn(name = "member_id" , nullable = false)
+	private Member member;
+	
+	private Date borrowDate;
+	private Date returnDate;
+	private double fine;
+
 }
