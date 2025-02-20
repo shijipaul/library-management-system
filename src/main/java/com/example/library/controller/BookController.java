@@ -19,16 +19,22 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.library.entity.Book;
 import com.example.library.service.BookService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/books")
+@Tag(name = "Book Management",description = "APIs for managing books in the Library ")
 public class BookController {
 
 	@Autowired
 	private BookService bookService;
-
+	
 	@PostMapping
+	@Operation(summary = "Add new Book",description = "Add new book to the library")
 	public ResponseEntity<?> addBook(@Valid @RequestBody Book book , BindingResult result) {
 		
 		 if (result.hasErrors()) {
@@ -43,6 +49,7 @@ public class BookController {
 	}
 
 	@PutMapping("/{id}")
+	@Operation(summary = "Modify existing book by ID",description = "API to Modify the existing Book with the help of ID")
 	public ResponseEntity<?> updateBook(@Valid @RequestBody Book book, @PathVariable Long id, BindingResult result) {
 		if (result.hasErrors()) {
 			StringBuilder errorMessage = new StringBuilder();
@@ -57,11 +64,17 @@ public class BookController {
 	}
 
 	@GetMapping("/{id}")
+	@Operation(summary = "Get Book Details by ID", description = "Retrieving Book Details By passing Its ID")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200",description = "Book Found"),
+		@ApiResponse(responseCode = "400",description = "Book Not Found")
+	})
 	public Book getBook(@PathVariable Long id) {
 		return bookService.getBook(id);
 	}
 
 	@DeleteMapping("/{id}")
+	@Operation(summary = "Delete book by ID", description = "Removing book from library by using its ID")
 	public void deleteBook(@PathVariable Long id) {
 		bookService.deleteBook(id);
 	}

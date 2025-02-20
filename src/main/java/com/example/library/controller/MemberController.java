@@ -17,16 +17,20 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.library.entity.Member;
 import com.example.library.service.MemberService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/members")
+@Tag(name = "Member Management",description = "APIS to manage members in Library")
 public class MemberController {
 	
 	@Autowired
     private  MemberService memberService;
 
     @PostMapping
+    @Operation(summary = "Add new Member", description = "create new member to the Library System")
     public ResponseEntity<?> addMember(@Valid @RequestBody Member member , BindingResult result) {
     	if (result.hasErrors()) {
             StringBuilder errorMessage = new StringBuilder();
@@ -40,6 +44,7 @@ public class MemberController {
     }
     
     @GetMapping("/{id}")
+    @Operation(summary = "Retrieve Member Details", description = "retrieve details of member using ID")
     public Member getMember(@PathVariable Long id) {
         return memberService.getMember(id);
     }
