@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.library.entity.Member;
+import com.example.library.model.Member;
 import com.example.library.service.MemberService;
 
 import io.swagger.v3.oas.annotations.Operation;

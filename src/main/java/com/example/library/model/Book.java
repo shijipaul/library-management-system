@@ -1,11 +1,11 @@
-package com.example.library.entity;
+package com.example.library.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,18 +14,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Member {
+public class Book {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    private Long id;
 	
+	@NotBlank(message = "Title is required")
+    private String title;
 	
-	@NotBlank(message = "Name is required")
-	private String name;
+	@NotBlank(message = "Author is required")
+    private String author;
 	
-	@Email(message = "Email should be valid")
-    @NotBlank(message = "Email is required")
-	private String email;
-	private String mobileNo;
-  
+	@Positive(message = "Available copies must be greater than 0")
+    private int availableCopies;
 }

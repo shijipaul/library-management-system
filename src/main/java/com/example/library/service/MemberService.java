@@ -3,7 +3,7 @@ package com.example.library.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.library.entity.Member;
+import com.example.library.model.Member;
 import com.example.library.repository.MemberRepository;
 
 @Service

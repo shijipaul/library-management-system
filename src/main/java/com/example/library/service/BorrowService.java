@@ -5,9 +5,9 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.library.entity.Book;
-import com.example.library.entity.Borrow;
-import com.example.library.entity.Member;
+import com.example.library.model.Book;
+import com.example.library.model.Borrow;
+import com.example.library.model.Member;
 import com.example.library.repository.BorrowRepository;
 
 @Service
