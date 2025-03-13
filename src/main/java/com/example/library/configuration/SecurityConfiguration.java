@@ -22,8 +22,8 @@ public class SecurityConfiguration {
 	SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception {
 		http.csrf(csrf->csrf.disable())
 		    .authorizeHttpRequests(auth->auth.requestMatchers("/swagger-ui**/**","/v3/api-docs/**").permitAll()
-		    		.requestMatchers("/api/borrrows/**").hasRole("ADMIN")
-		    		.requestMatchers("/api/books/**","api/members/**").hasAnyRole("USER","ADMIN")
+		    		.requestMatchers("/api/books/**").hasRole("ADMIN")
+		    		.requestMatchers("/api/members/**").hasAnyRole("USER","ADMIN")
 		    		.anyRequest().authenticated())
 		    .userDetailsService(customeMemberDetailsService)
 		    .httpBasic(basic->{});

@@ -23,6 +23,8 @@ public class CustomMemberDetailsService implements UserDetailsService{
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Member member = memberRepository.findByUserName(username)
 				.orElseThrow(() -> new UsernameNotFoundException("Member Not Found :" + username));
+		
+		
 		return new User(member.getUserName(), 
 				member.getPassword(),
 				member.getRoles().stream()

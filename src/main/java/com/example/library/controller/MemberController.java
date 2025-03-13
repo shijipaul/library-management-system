@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.library.dto.MemberDto;
 import com.example.library.model.Member;
 import com.example.library.service.MemberService;
 
@@ -29,9 +31,9 @@ public class MemberController {
 	@Autowired
     private  MemberService memberService;
 
-    @PostMapping
-    @Operation(summary = "Add new Member", description = "create new member to the Library System")
-    public ResponseEntity<?> addMember(@Valid @RequestBody Member member , BindingResult result) {
+    @PostMapping("/register")
+    @Operation(summary = "Register new Member", description = "register new member to the Library System")
+    public ResponseEntity<?> registerMember(@Valid @RequestBody MemberDto memberDto , BindingResult result) {
     	if (result.hasErrors()) {
             StringBuilder errorMessage = new StringBuilder();
             List<ObjectError> errors = result.getAllErrors();
@@ -40,7 +42,7 @@ public class MemberController {
             }
             return new ResponseEntity<>(errorMessage.toString(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(memberService.addMember(member),HttpStatus.CREATED);
+        return new ResponseEntity<>(memberService.registerMember(memberDto),HttpStatus.CREATED);
     }
     
     @GetMapping("/{id}")
@@ -48,4 +50,5 @@ public class MemberController {
     public Member getMember(@PathVariable Long id) {
         return memberService.getMember(id);
     }
+    
 }
