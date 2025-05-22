@@ -22,7 +22,7 @@ public class AuditLogsService {
 		return bookAuditLogRepo.findByBookId(bookId);
 	}
 	
-	@Async
+	@Async("auditTaskExecutor")
 	public void logBookAction(Long bookId, String action) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = (auth != null && auth.isAuthenticated()) ? auth.getName() : "anonymous";
