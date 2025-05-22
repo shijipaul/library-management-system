@@ -1,4 +1,3 @@
-version: '3.8'
 services:
 
   mysql:
@@ -10,6 +9,8 @@ services:
     MYSQL_DATABASE: ${MYSQL_DATABASE}
     MYSQL_USER: ${MYSQL_USER}
     MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+   networks:
+    - backend
    ports:
     - "3306:3306" #mysql is running localy on port 3306. to avoid conflict mapped to 3307  here
    volumes:
@@ -18,8 +19,18 @@ services:
        test: ["CMD","mysqladmin","ping","-h","localhost"]
        timeout: 20s
        retries: 10 
-   
 
+  mongodb:
+    image: mongo:6
+    container_name: mongo
+    restart: always
+    ports:
+       - "27017:27017"
+    environment: 
+     MONGO_INITDB_DATABASE: library_mongo
+    networks:
+     - backend
+ 
   app:
    build: .
    container_name: library-management-system
@@ -31,8 +42,13 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+   networks:
+     - backend
    ports:
     - "8080:8080"
 volumes:
   mysql_data:
 
+networks:
+ backend:
+  driver: bridge
