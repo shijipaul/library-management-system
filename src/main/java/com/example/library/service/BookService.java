@@ -1,11 +1,16 @@
 package com.example.library.service;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.example.library.model.Book;
+import com.example.library.model.BookAuditLog;
 import com.example.library.repository.BookRepository;
 
 @Service
@@ -17,19 +22,19 @@ public class BookService {
 	private BookRepository bookRepository;
 	
 	@Autowired
-	private AuditLogsService auditLogService;
+	private BookAuditLogKafkaProducer auditLogProducer;
 
 	public Book addBook(Book book) {
 		logger.info("Adding new Book : " + book.getTitle());
 		Book savedBook = bookRepository.save(book);
-		auditLogService.logBookAction(savedBook.getId(), "CREATED");
+		logBookAction(savedBook.getId(), "CREATED");
 		return savedBook;
 	}
 
 	public void deleteBook(Long bookId) {
 		logger.info("Deleting  Book with Id : " + bookId);
 		bookRepository.deleteById(bookId);
-		auditLogService.logBookAction(bookId, "DELETED");
+		logBookAction(bookId, "DELETED");
 	}
 
 	public Book getBook(Long bookId) {
@@ -46,8 +51,20 @@ public class BookService {
 		existingBook.setTitle(book.getTitle());
 		existingBook.setAvailableCopies(book.getAvailableCopies());
 		Book updatedBook = bookRepository.save(existingBook);
-		auditLogService.logBookAction(updatedBook.getId(), "UPDATED");
+		logBookAction(updatedBook.getId(), "UPDATED");
 		return updatedBook;
+	}
+	
+	public void logBookAction(Long bookId, String action) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String username = (auth != null && auth.isAuthenticated()) ? auth.getName() : "anonymous";
+
+		BookAuditLog auditLog = new BookAuditLog();
+		auditLog.setBookId(bookId);
+		auditLog.setAction(action);
+		auditLog.setPerformedBy(username);
+		auditLog.setTimestamp(new Date());
+		auditLogProducer.sendBookAuditLogs(auditLog);
 	}
 
 }

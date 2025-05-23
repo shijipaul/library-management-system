@@ -1,5 +1,6 @@
 services:
 
+  #MySQL database
   mysql:
    image: mysql:8.0
    container_name: mysql-db
@@ -9,8 +10,6 @@ services:
     MYSQL_DATABASE: ${MYSQL_DATABASE}
     MYSQL_USER: ${MYSQL_USER}
     MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-   networks:
-    - backend
    ports:
     - "3306:3306" #mysql is running localy on port 3306. to avoid conflict mapped to 3307  here
    volumes:
@@ -19,18 +18,51 @@ services:
        test: ["CMD","mysqladmin","ping","-h","localhost"]
        timeout: 20s
        retries: 10 
+   networks:
+      - libnet
 
+  #MongoDB for auditLogs
   mongodb:
     image: mongo:6
     container_name: mongo
     restart: always
     ports:
        - "27017:27017"
-    environment: 
-     MONGO_INITDB_DATABASE: library_mongo
+    volumes:
+       - mongo_data:/data/db
     networks:
-     - backend
- 
+       - libnet
+
+#Zookeeper(Kafka dependency)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    restart: always
+    ports: 
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - libnet
+
+#Kafka broker
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka 
+    restart: always
+    ports:
+      - "9092:9092"
+    depends_on: 
+      - zookeeper
+    environment:
+     KAFKA_BROKER_ID: 1
+     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+       - libnet
+
+#Spring Boot application
   app:
    build: .
    container_name: library-management-system
@@ -38,17 +70,27 @@ services:
    depends_on:
            mysql:
             condition: service_healthy
+           kafka:
+            condition: service_started
+           mongodb:
+            condition: service_started
    environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
-   networks:
-     - backend
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/library_audit_logs
    ports:
     - "8080:8080"
+   networks:
+    - libnet
+
+
 volumes:
   mysql_data:
+  mongo_data:
+
 
 networks:
- backend:
-  driver: bridge
+  libnet:
+   driver: bridge

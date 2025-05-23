@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.example.library.model.BookAuditLog;
 @Repository
-public interface BookAuditLogRepository extends MongoRepository<BookAuditLog,Long>{
+public interface BookAuditLogRepository extends MongoRepository<BookAuditLog,String>{
 	List<BookAuditLog> findByBookId(Long bookId);
 
 }
