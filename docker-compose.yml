@@ -33,6 +33,15 @@ services:
     networks:
        - libnet
 
+#Redis
+  redis:
+    image: redis:6.2
+    container_name: redis
+    ports:
+     - "6379:6379"
+    networks:
+      - libnet 
+
 #Zookeeper(Kafka dependency)
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -73,6 +82,8 @@ services:
            kafka:
             condition: service_started
            mongodb:
+            condition: service_started
+           redis:
             condition: service_started
    environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}

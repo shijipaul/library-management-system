@@ -5,6 +5,9 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,7 +23,7 @@ public class BookService {
 
 	@Autowired
 	private BookRepository bookRepository;
-	
+
 	@Autowired
 	private BookAuditLogKafkaProducer auditLogProducer;
 
@@ -31,18 +34,21 @@ public class BookService {
 		return savedBook;
 	}
 
+	@CacheEvict(key = "#bookId", value = "books")
 	public void deleteBook(Long bookId) {
 		logger.info("Deleting  Book with Id : " + bookId);
 		bookRepository.deleteById(bookId);
 		logBookAction(bookId, "DELETED");
 	}
 
+	@Cacheable(key = "#bookId", value = "books")
 	public Book getBook(Long bookId) {
 		logger.info("Retrieving details of  Book with ID : " + bookId);
 		return bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
-		
+
 	}
 
+	@CachePut(key = "#bookId", value = "books")
 	public Book updateBook(Book book, Long bookId) {
 		logger.info("Updating  Book with ID : " + bookId);
 		Book existingBook = bookRepository.findById(bookId)
@@ -54,7 +60,7 @@ public class BookService {
 		logBookAction(updatedBook.getId(), "UPDATED");
 		return updatedBook;
 	}
-	
+
 	public void logBookAction(Long bookId, String action) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = (auth != null && auth.isAuthenticated()) ? auth.getName() : "anonymous";
