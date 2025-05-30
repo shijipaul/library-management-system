@@ -71,6 +71,16 @@ services:
     networks:
        - libnet
 
+#config server
+  config-server:
+    build: ../config-server-app
+    container_name: config-server
+    ports:
+     - "8888:8888"
+    networks:
+       - libnet
+
+
 #Spring Boot application
   app:
    build: .
@@ -85,12 +95,15 @@ services:
             condition: service_started
            redis:
             condition: service_started
+           config-server:
+            condition: service_started
    environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/library_audit_logs
+      SPRING_PROFILES_ACTIVE: dev
    ports:
     - "8080:8080"
    networks:
