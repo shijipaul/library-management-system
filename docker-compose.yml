@@ -73,7 +73,9 @@ services:
 
 #config server
   config-server:
-    build: ../config-server-app
+    build: 
+      context: ./config-server
+      dockerfile: Dockerfile
     container_name: config-server
     ports:
      - "8888:8888"
@@ -82,8 +84,10 @@ services:
 
 
 #Spring Boot application
-  app:
-   build: .
+  library-app:
+   build: 
+     context: ./library-app
+     dockerfile: Dockerfile
    container_name: library-management-system
    restart: always
    depends_on:
