@@ -33,7 +33,7 @@ public class SecurityConfiguration {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/auth/**", "/swagger-ui**/**", "/v3/api-docs/**","/api/members/register").permitAll()
+						.requestMatchers("/api/auth/**", "/swagger-ui**/**", "/v3/api-docs/**","/api/members/register","/actuator/*").permitAll()
 								.requestMatchers("/api/books/**").hasRole("USER")
 								.requestMatchers("/api/members/**").hasAnyRole("USER", "ADMIN")
 								.anyRequest().authenticated()
