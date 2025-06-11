@@ -3,6 +3,7 @@ pipeline{
     environment{
         DOCKER_IMAGE = 'shijipaul/library-management-system-app'
         DOCKER_CREDENTIALS_ID = 'docker-hub-creds'
+		DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     }
     stages{
         stage('Checkout Library App') {
@@ -32,8 +33,17 @@ pipeline{
                 }
             }
         }
+		stage('Cleanup Previous Deployment') {
+            steps {
+                echo 'Stopping any existing containers...'
+                sh '''
+                    docker-compose -f ${DOCKER_COMPOSE_FILE} down || true
+                '''
+            }
+        }
         stage('deploy(Local Docker Compose)'){
             steps{
+					echo 'Starting new deployment using Docker Compose...'
                     sh '''
                     docker-compose down || true
                     docker-compose up -d --build
