@@ -37,8 +37,8 @@ pipeline{
             steps {
                 echo 'Stopping any existing containers...'
                 sh '''
-		    docker stop redis mongo kafka zookeeper mysql-db config-server grafana library-management-system
-      		    docker rm redis mongo kafka zookeeper mysql-db config-server grafana library-management-system
+		    docker stop redis mongo kafka zookeeper mysql-db config-server library-management-system
+      		    docker rm redis mongo kafka zookeeper mysql-db config-server library-management-system
                     docker-compose -f ${DOCKER_COMPOSE_FILE} down || true
                 '''
             }
