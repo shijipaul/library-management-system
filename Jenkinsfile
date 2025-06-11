@@ -8,9 +8,7 @@ pipeline{
     stages{
         stage('Checkout Library App') {
             steps {
-                    git branch: 'feature/library',
-                    url: 'https://github.com/shijipaul/library-management-system.git',
-                    credentialsId: 'github-token'
+                    checkout scm
                   }
             }
 
