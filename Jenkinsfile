@@ -35,6 +35,8 @@ pipeline{
             steps {
                 echo 'Stopping any existing containers...'
                 sh '''
+                    docker ps -a --filter "ancestor=grafana/grafana" --format "{{.ID}}" | xargs -r docker stop
+     		    docker ps -a --filter "ancestor=grafana/grafana" --format "{{.ID}}" | xargs -r docker rm
 		    docker stop redis mongo kafka zookeeper mysql-db config-server library-management-system
       		    docker rm redis mongo kafka zookeeper mysql-db config-server library-management-system
                     docker-compose -f ${DOCKER_COMPOSE_FILE} down || true
