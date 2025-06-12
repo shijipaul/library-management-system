@@ -43,7 +43,7 @@ public class BookService {
 
 	@Cacheable(key = "#bookId", value = "books")
 	public Book getBook(Long bookId) {
-		logger.info("Retrieving details of  Book with ID : " + bookId);
+		logger.info("Retrieving the details of  Book with ID : " + bookId);
 		return bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
 
 	}
