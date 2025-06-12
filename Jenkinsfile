@@ -1,19 +1,27 @@
 pipeline{
     agent any
     environment{
-		BRANCH_NAME = "${env.BRANCH_NAME}"
-		SPRING_PROFILE = getProfile(env.BRANCH_NAME)
         DOCKER_IMAGE = 'shijipaul/library-management-system-app'
         DOCKER_CREDENTIALS_ID = 'docker-hub-creds'
-		DOCKER_COMPOSE_FILE = "docker-compose-${SPRING_PROFILE}.yml"
     }
     stages{
-		stage('Print Info') {
+		stage('Set Environment') {
             steps {
-                echo "Building for branch: ${env.BRANCH_NAME}"
-                echo "Using Spring profile: ${SPRING_PROFILE}"
+                script {
+                    // Get the active Git branch name
+                    BRANCH_NAME = env.BRANCH_NAME
+                    // Dynamically set Spring profile based on branch
+                    SPRING_PROFILE = getProfile(BRANCH_NAME)
+                    // Set Compose file dynamically
+                    DOCKER_COMPOSE_FILE = "docker-compose-${SPRING_PROFILE}.yml"
+
+                    echo "Branch: ${BRANCH_NAME}"
+                    echo "Spring profile: ${SPRING_PROFILE}"
+                    echo "Docker Compose file: ${DOCKER_COMPOSE_FILE}"
+                }
             }
         }
+
         stage('Checkout Library App') {
             steps {
                     checkout scm
@@ -57,13 +65,7 @@ pipeline{
                 
             }
         }
-		def getProfile(String branch) {
-			if (branch == 'dev') return 'dev'
-			if (branch == 'release/sit') return 'sit'
-			if (branch == 'release/uat') return 'uat'
-			if (branch == 'release/prod') return 'prod'
-			return 'dev' // fallback
-}
+		
         post{
                 success{
                     echo 'Build and Deployment is successfull!'
@@ -74,3 +76,10 @@ pipeline{
                 
             }
     }
+def getProfile(String branch) {
+			if (branch == 'dev') return 'dev'
+			if (branch == 'release/sit') return 'sit'
+			if (branch == 'release/uat') return 'uat'
+			if (branch == 'release/prod') return 'prod'
+			return 'dev' // fallback
+}
