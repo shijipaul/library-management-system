@@ -48,6 +48,7 @@ pipeline{
             steps {
                 echo 'Stopping any existing containers...'
                 sh '''
+		    #!/bin/bash
 		    cd ${env.WORKSPACE}
                     docker-compose -f ${DOCKER_COMPOSE_FILE} down || true
                 '''
@@ -57,6 +58,7 @@ pipeline{
             steps{
 		   echo "Deploying to environment: ${SPRING_PROFILE}"
                     sh '''
+		        #!/bin/bash
 		       cd ${env.WORKSPACE}
                        docker-compose -f ${DOCKER_COMPOSE_FILE} up -d --build
                     '''
