@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment{
-		BRANCH_NAME = env.BRANCH_NAME
+		BRANCH_NAME = "${env.BRANCH_NAME}"
         DOCKER_IMAGE = 'shijipaul/library-management-system-app'
         DOCKER_CREDENTIALS_ID = 'docker-hub-creds'
 		SPRING_PROFILE = getProfile(BRANCH_NAME)
