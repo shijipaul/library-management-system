@@ -1,20 +1,17 @@
 pipeline{
     agent any
     environment{
+		BRANCH_NAME = env.BRANCH_NAME
         DOCKER_IMAGE = 'shijipaul/library-management-system-app'
         DOCKER_CREDENTIALS_ID = 'docker-hub-creds'
+		SPRING_PROFILE = getProfile(BRANCH_NAME)
+		DOCKER_COMPOSE_FILE = "docker-compose-${SPRING_PROFILE}.yml"
     }
     stages{
 		stage('Set Environment') {
             steps {
                 script {
-                    // Get the active Git branch name
-                    BRANCH_NAME = env.BRANCH_NAME
-                    // Dynamically set Spring profile based on branch
-                    SPRING_PROFILE = getProfile(BRANCH_NAME)
-                    // Set Compose file dynamically
-                    DOCKER_COMPOSE_FILE = "docker-compose-${SPRING_PROFILE}.yml"
-
+                
                     echo "Branch: ${BRANCH_NAME}"
                     echo "Spring profile: ${SPRING_PROFILE}"
                     echo "Docker Compose file: ${DOCKER_COMPOSE_FILE}"
