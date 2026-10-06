@@ -1,12 +1,8 @@
 package com.example.library.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.library.dto.BookRequestDTO;
+import com.example.library.dto.BookResponseDTO;
 import com.example.library.model.Book;
 import com.example.library.service.BookService;
 
@@ -35,32 +33,14 @@ public class BookController {
 	
 	@PostMapping
 	@Operation(summary = "Add new Book",description = "Add new book to the library")
-	public ResponseEntity<?> addBook(@Valid @RequestBody Book book , BindingResult result) {
-		
-		 if (result.hasErrors()) {
-	            StringBuilder errorMessage = new StringBuilder();
-	            List<ObjectError> errors = result.getAllErrors();
-	            for (ObjectError error : errors) {
-	                errorMessage.append(error.getDefaultMessage()).append(", ");
-	            }
-	            return new ResponseEntity<>(errorMessage.toString(), HttpStatus.BAD_REQUEST);
-	        }
-		return new ResponseEntity<>(bookService.addBook(book),HttpStatus.CREATED);
+	public ResponseEntity<BookResponseDTO> addBook(@Valid @RequestBody BookRequestDTO bookRequest) {    
+		return new ResponseEntity<>(bookService.addBook(bookRequest),HttpStatus.CREATED);
 	}
 
 	@PutMapping("/{id}")
 	@Operation(summary = "Modify existing book by ID",description = "API to Modify the existing Book with the help of ID")
-	public ResponseEntity<?> updateBook(@Valid @RequestBody Book book, @PathVariable Long id, BindingResult result) {
-		if (result.hasErrors()) {
-			StringBuilder errorMessage = new StringBuilder();
-			List<ObjectError> errors = result.getAllErrors();
-			for (ObjectError error : errors) {
-				errorMessage.append(error.getDefaultMessage()).append(", ");
-			}
-			return new ResponseEntity<>(errorMessage.toString(), HttpStatus.BAD_REQUEST);
-		}
-
-		return new ResponseEntity<>(bookService.updateBook(book, id), HttpStatus.OK);
+	public ResponseEntity<BookResponseDTO> updateBook(@Valid @RequestBody BookRequestDTO bookRequest, @PathVariable Long id) {
+		return new ResponseEntity<>(bookService.updateBook(bookRequest, id), HttpStatus.OK);
 	}
 
 	@GetMapping("/{id}")
@@ -69,8 +49,8 @@ public class BookController {
 		@ApiResponse(responseCode = "200",description = "Book Found"),
 		@ApiResponse(responseCode = "400",description = "Book Not Found")
 	})
-	public Book getBook(@PathVariable Long id) {
-		return bookService.getBook(id);
+	public ResponseEntity<Book> getBook(@PathVariable Long id) {
+		return new ResponseEntity<>(bookService.getBook(id),HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")

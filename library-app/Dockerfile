@@ -1,5 +1,5 @@
 # Stage 1: Build the Application
-FROM maven:3.8.5-openjdk-17 AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
@@ -8,7 +8,7 @@ RUN mvn clean package -DskipTests
 #Stage 2 : Run the Application
 
 #setting official Open Jdk runtime as base image
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk
 
 #Set the working directory
 WORKDIR /app

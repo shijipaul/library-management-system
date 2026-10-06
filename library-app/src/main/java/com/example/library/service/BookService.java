@@ -12,6 +12,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.example.library.dto.BookRequestDTO;
+import com.example.library.dto.BookResponseDTO;
+import com.example.library.exception.BookNotFoundException;
+import com.example.library.mapper.BookMapper;
 import com.example.library.model.Book;
 import com.example.library.model.BookAuditLog;
 import com.example.library.repository.BookRepository;
@@ -26,12 +30,16 @@ public class BookService {
 
 	@Autowired
 	private BookAuditLogKafkaProducer auditLogProducer;
+	
+	private BookMapper bookMapper;
 
-	public Book addBook(Book book) {
-		logger.info("Adding new Book : " + book.getTitle());
+	public BookResponseDTO addBook(BookRequestDTO bookRequest) {
+		logger.info("Adding new Book : " + bookRequest.getTitle());
+		Book book = bookMapper.mapToBookEntity(bookRequest);
 		Book savedBook = bookRepository.save(book);
 		logBookAction(savedBook.getId(), "CREATED");
-		return savedBook;
+		BookResponseDTO bookResponse = bookMapper.mapToBookDTO(savedBook);
+		return bookResponse;
 	}
 
 	@CacheEvict(key = "#bookId", value = "books")
@@ -44,21 +52,22 @@ public class BookService {
 	@Cacheable(key = "#bookId", value = "books")
 	public Book getBook(Long bookId) {
 		logger.info("Retrieving the details of  Book with ID : " + bookId);
-		return bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
+		return bookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
 
 	}
 
 	@CachePut(key = "#bookId", value = "books")
-	public Book updateBook(Book book, Long bookId) {
+	public BookResponseDTO updateBook(BookRequestDTO bookRequest, Long bookId) {
 		logger.info("Updating  Book with ID : " + bookId);
 		Book existingBook = bookRepository.findById(bookId)
 				.orElseThrow(() -> new RuntimeException("Book is not found"));
-		existingBook.setAuthor(book.getAuthor());
-		existingBook.setTitle(book.getTitle());
-		existingBook.setAvailableCopies(book.getAvailableCopies());
+		existingBook.setAuthor(bookRequest.getAuthor());
+		existingBook.setTitle(bookRequest.getTitle());
+		existingBook.setAvailableCopies(bookRequest.getAvailableCopies());
 		Book updatedBook = bookRepository.save(existingBook);
 		logBookAction(updatedBook.getId(), "UPDATED");
-		return updatedBook;
+		BookResponseDTO bookResponse = bookMapper.mapToBookDTO(updatedBook);
+		return bookResponse;
 	}
 
 	public void logBookAction(Long bookId, String action) {

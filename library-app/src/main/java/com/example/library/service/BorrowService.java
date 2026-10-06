@@ -2,6 +2,8 @@ package com.example.library.service;
 
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +14,8 @@ import com.example.library.repository.BorrowRepository;
 
 @Service
 public class BorrowService {
-
+    private static final Logger logger = LoggerFactory.getLogger(BorrowService.class);
+    
 	@Autowired
 	private BorrowRepository borrowRepository;
 	
@@ -24,8 +27,8 @@ public class BorrowService {
 	
 	
 	
-	public Borrow borrowbook(Long bookId , Long memberId) {
-		
+	public Borrow borrowbook(Long bookId , Long memberId) throws InterruptedException {
+		long startTime = System.currentTimeMillis();
 		Member member = memberService.getMember(memberId);
 		Book book = bookService.getBook(bookId);
 		
@@ -40,11 +43,14 @@ public class BorrowService {
 		
 		book.setAvailableCopies(book.getAvailableCopies()-1);
 		bookService.updateBook(book,bookId);
-		
+		Thread.sleep(2000);
+		long endTime = System.currentTimeMillis();
+		logger.info("Execution Time : {}ms"+(endTime - startTime));
 		return borrowRepository.save(borrow);
 	}
 	
 	public Borrow returnBook(Long borrowId) {
+		
 		
 		Borrow borrow = borrowRepository.findById(borrowId).orElseThrow(()->new RuntimeException("Borrow record not found!"));
 		borrow.setReturnDate(new Date());

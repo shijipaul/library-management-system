@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.library.dto.MemberDto;
+import com.example.library.dto.MemberDTO;
 import com.example.library.model.Member;
 import com.example.library.model.Role;
 import com.example.library.repository.MemberRepository;
@@ -26,7 +26,7 @@ public class MemberService {
 	private PasswordEncoder passwordEncoder;
 	
 	
-	public Member registerMember(MemberDto memberDto) {
+	public Member registerMember(MemberDTO memberDto) {
 		String roleName = (memberDto.getRole()==null || memberDto.getRole().isBlank())?"ROLE_USER":memberDto.getRole();
 		Role role = roleRepository.findByRoleName(roleName)
 				                  .orElseGet(()->roleRepository.save(new Role(roleName)));

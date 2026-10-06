@@ -22,7 +22,7 @@ public class BorrowController {
 	
 	@PostMapping("/borrow")
 	@Operation(summary = "Borrow Book", description = "Member borrowed a Book")
-    public Borrow borrowBook(@RequestParam Long bookId, @RequestParam Long memberId) {
+    public Borrow borrowBook(@RequestParam Long bookId, @RequestParam Long memberId) throws InterruptedException {
         return borrowService.borrowbook(bookId, memberId);
     }
 	
