@@ -4,45 +4,64 @@ import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.library.model.Book;
+import com.example.library.dto.BookRequestDTO;
+import com.example.library.dto.BookResponseDTO;
+import com.example.library.dto.BorrowRequestDTO;
+import com.example.library.dto.BorrowResponseDTO;
+import com.example.library.dto.MemberRequestDTO;
+import com.example.library.dto.MemberResponseDTO;
+import com.example.library.mapper.BookMapper;
+import com.example.library.mapper.BorrowMapper;
+import com.example.library.mapper.MemberMapper;
 import com.example.library.model.Borrow;
-import com.example.library.model.Member;
 import com.example.library.repository.BorrowRepository;
 
 @Service
 public class BorrowService {
     private static final Logger logger = LoggerFactory.getLogger(BorrowService.class);
     
-	@Autowired
-	private BorrowRepository borrowRepository;
-	
-	@Autowired
-	private BookService bookService;
-	
-	@Autowired
-	private MemberService memberService ;
-	
+
+	private final BorrowRepository borrowRepository;
+    private final BookService bookService;
+    private final MemberService memberService ;
+    private final BorrowMapper borrowMapper;
+    private final MemberMapper memberMapper;
+    private final BookMapper bookMapper;
+    
+    public BorrowService(BorrowRepository borrowRepository,BookService bookService,MemberService memberService,BorrowMapper borrowMapper,MemberMapper memberMapper,BookMapper bookMapper) {
+    	this.borrowRepository = borrowRepository;
+    	this.bookService = bookService;
+    	this.memberService = memberService;
+    	this.borrowMapper = borrowMapper;
+    	this.memberMapper = memberMapper;
+    	this.bookMapper = bookMapper;
+    	
+    }
+	  
 	
 	
 	public Borrow borrowbook(Long bookId , Long memberId) throws InterruptedException {
 		long startTime = System.currentTimeMillis();
-		Member member = memberService.getMember(memberId);
-		Book book = bookService.getBook(bookId);
+		MemberResponseDTO memberResponse = memberService.getMember(memberId);
+		MemberRequestDTO memberRequest = memberMapper.mapMemberResponseDTOToMemberRequestDTO(memberResponse);
+		BookResponseDTO bookResponse = bookService.getBook(bookId);
 		
-		if(book.getAvailableCopies() <= 0) {
+		if(bookResponse.getAvailableCopies() <= 0) {
 			throw new RuntimeException("no  available copies for this book!");
 		}
+		bookResponse.setAvailableCopies(bookResponse.getAvailableCopies()-1);
+		BookRequestDTO bookRquest = bookMapper.mapBookResponseDTOToBookRequestDTO(bookResponse);
+
+		BorrowRequestDTO borrowRequest = new BorrowRequestDTO();
+		borrowRequest.setBook(bookRquest);
+		borrowRequest.setMember(memberRequest);
+		borrowRequest.setBorrowDate(new Date());
 		
-		Borrow borrow = new Borrow();
-		borrow.setBook(book);
-		borrow.setMember(member);
-		borrow.setBorrowDate(new Date());
 		
-		book.setAvailableCopies(book.getAvailableCopies()-1);
-		bookService.updateBook(book,bookId);
+		bookService.updateBook(bookRquest,bookId);
+		Borrow borrow = borrowMapper.mapToBorrowEntity(borrowRequest);
 		Thread.sleep(2000);
 		long endTime = System.currentTimeMillis();
 		logger.info("Execution Time : {}ms"+(endTime - startTime));
@@ -53,7 +72,8 @@ public class BorrowService {
 		
 		
 		Borrow borrow = borrowRepository.findById(borrowId).orElseThrow(()->new RuntimeException("Borrow record not found!"));
-		borrow.setReturnDate(new Date());
+		BorrowResponseDTO borrowResponse = borrowMapper.mapToBorrowDTO(borrow);
+		borrowResponse.setReturnDate(new Date());
 		
 		//fine calculation logic
 		Long diffInMillies = Math.abs(borrow.getReturnDate().getTime()-borrow.getBorrowDate().getTime());
@@ -61,12 +81,14 @@ public class BorrowService {
 		Long diffInDays = diffInMillies /(1000*60*60*24);
 		
 		if(diffInDays > 14) {
-			borrow.setFine((diffInDays - 14)*1.0);
+			borrowResponse.setFine((diffInDays - 14)*1.0);
 		}
 		
-		Book book = borrow.getBook();
-		book.setAvailableCopies(book.getAvailableCopies() + 1);
-		bookService.updateBook(book, book.getId());
+		BookResponseDTO bookResponse = borrowResponse.getBook();
+		bookResponse.setAvailableCopies(bookResponse.getAvailableCopies() + 1);
+		
+		BookRequestDTO bookRequest = bookMapper.mapBookResponseDTOToBookRequestDTO(bookResponse);
+		bookService.updateBook(bookRequest, bookResponse.getId());
 		
 		
 		return borrowRepository.save(borrow);

@@ -50,9 +50,11 @@ public class BookService {
 	}
 
 	@Cacheable(key = "#bookId", value = "books")
-	public Book getBook(Long bookId) {
+	public BookResponseDTO getBook(Long bookId) {
 		logger.info("Retrieving the details of  Book with ID : " + bookId);
-		return bookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
+		Book book =  bookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
+		BookResponseDTO bookResponse = bookMapper.mapToBookDTO(book);
+		return bookResponse;
 
 	}
 

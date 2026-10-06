@@ -49,7 +49,7 @@ public class BookController {
 		@ApiResponse(responseCode = "200",description = "Book Found"),
 		@ApiResponse(responseCode = "400",description = "Book Not Found")
 	})
-	public ResponseEntity<Book> getBook(@PathVariable Long id) {
+	public ResponseEntity<BookResponseDTO> getBook(@PathVariable Long id) {
 		return new ResponseEntity<>(bookService.getBook(id),HttpStatus.OK);
 	}
 

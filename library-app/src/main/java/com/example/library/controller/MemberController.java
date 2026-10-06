@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.library.dto.MemberDTO;
-import com.example.library.model.Member;
+import com.example.library.dto.MemberResponseDTO;
 import com.example.library.service.MemberService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,8 +34,8 @@ public class MemberController {
     
     @GetMapping("/{id}")
     @Operation(summary = "Retrieve Member Details", description = "retrieve details of member using ID")
-    public Member getMember(@PathVariable Long id) {
-        return memberService.getMember(id);
+    public ResponseEntity<MemberResponseDTO> getMember(@PathVariable Long id) {
+        return new ResponseEntity<>(memberService.getMember(id),HttpStatus.OK);
     }
     
 }
